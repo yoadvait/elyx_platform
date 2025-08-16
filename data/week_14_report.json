@@ -1,0 +1,18 @@
+{
+  "week": 14,
+  "events": [
+    "exercise_plan_update"
+  ],
+  "conversations_count": 20,
+  "adherence_rate": 0.7,
+  "health_metrics": {
+    "blood_sugar_avg": 154,
+    "a1c": 5.92,
+    "weight": 73.6
+  },
+  "agent_actions": {
+    "doctor_hours": 13,
+    "coach_hours": 14
+  },
+  "recommendations": []
+}

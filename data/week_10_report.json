@@ -1,0 +1,18 @@
+{
+  "week": 10,
+  "events": [
+    "leg_injury_reported"
+  ],
+  "conversations_count": 25,
+  "adherence_rate": 0.5,
+  "health_metrics": {
+    "blood_sugar_avg": 162,
+    "a1c": 6.0,
+    "weight": 74.0
+  },
+  "agent_actions": {
+    "doctor_hours": 14,
+    "coach_hours": 12
+  },
+  "recommendations": []
+}

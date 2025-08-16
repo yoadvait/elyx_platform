@@ -1,0 +1,18 @@
+{
+  "week": 24,
+  "events": [
+    "quarterly_diagnostic_test"
+  ],
+  "conversations_count": 15,
+  "adherence_rate": 0.3,
+  "health_metrics": {
+    "blood_sugar_avg": 134,
+    "a1c": 5.720000000000001,
+    "weight": 72.6
+  },
+  "agent_actions": {
+    "doctor_hours": 13,
+    "coach_hours": 11
+  },
+  "recommendations": []
+}

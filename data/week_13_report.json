@@ -1,0 +1,16 @@
+{
+  "week": 13,
+  "events": [],
+  "conversations_count": 15,
+  "adherence_rate": 0.7,
+  "health_metrics": {
+    "blood_sugar_avg": 156,
+    "a1c": 5.94,
+    "weight": 73.7
+  },
+  "agent_actions": {
+    "doctor_hours": 8,
+    "coach_hours": 16
+  },
+  "recommendations": []
+}

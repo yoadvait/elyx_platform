@@ -1,0 +1,18 @@
+{
+  "week": 4,
+  "events": [
+    "business_travel"
+  ],
+  "conversations_count": 20,
+  "adherence_rate": 0.8,
+  "health_metrics": {
+    "blood_sugar_avg": 174,
+    "a1c": 6.12,
+    "weight": 75
+  },
+  "agent_actions": {
+    "doctor_hours": 14,
+    "coach_hours": 19
+  },
+  "recommendations": []
+}
