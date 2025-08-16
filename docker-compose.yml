@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./data:/app/data
+      - ./agents:/app/agents
+      - ./backend:/app/backend
+    environment:
+      - ELYX_DB_PATH=/app/data/elyx.db
+    env_file:
+      - .env
+    command: python -m uvicorn backend.main:app --host 0.0.0.0 --port 8787 --reload
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8787
+    command: npm run dev
+    depends_on:
+      - backend
+
+  db:
+    image: alpine:latest
+    volumes:
+      - db_data:/data
+    command: /bin/sh -c "while true; do sleep 30; done"
+
+volumes:
+  db_data:

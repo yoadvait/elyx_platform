@@ -101,3 +101,8 @@ temp/
 data/conversation_history.json
 data/*.db
 data/elyx.db
+
+Elyx Hack Plan.md
+Elyx Life - Hackathon Problem Statement .pdf
+Hackathon Implementation Guide.md
+ai-prompts-guide.md
