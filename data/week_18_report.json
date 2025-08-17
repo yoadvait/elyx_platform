@@ -3,7 +3,7 @@
   "events": [
     "exercise_plan_update"
   ],
-  "conversations_count": 20,
+  "conversations_count": 2,
   "adherence_rate": 0.8,
   "health_metrics": {
     "blood_sugar_avg": 146,
@@ -11,8 +11,8 @@
     "weight": 73.2
   },
   "agent_actions": {
-    "doctor_hours": 14,
-    "coach_hours": 20
+    "doctor_hours": 15,
+    "coach_hours": 10
   },
   "recommendations": []
 }

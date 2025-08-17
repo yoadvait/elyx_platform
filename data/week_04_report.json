@@ -3,7 +3,7 @@
   "events": [
     "business_travel"
   ],
-  "conversations_count": 20,
+  "conversations_count": 2,
   "adherence_rate": 0.8,
   "health_metrics": {
     "blood_sugar_avg": 174,
@@ -11,7 +11,7 @@
     "weight": 75
   },
   "agent_actions": {
-    "doctor_hours": 14,
+    "doctor_hours": 12,
     "coach_hours": 19
   },
   "recommendations": []

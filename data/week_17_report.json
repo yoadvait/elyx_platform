@@ -1,7 +1,7 @@
 {
   "week": 17,
   "events": [],
-  "conversations_count": 15,
+  "conversations_count": 2,
   "adherence_rate": 0.5,
   "health_metrics": {
     "blood_sugar_avg": 148,
@@ -9,8 +9,8 @@
     "weight": 73.3
   },
   "agent_actions": {
-    "doctor_hours": 13,
-    "coach_hours": 10
+    "doctor_hours": 8,
+    "coach_hours": 12
   },
   "recommendations": []
 }
