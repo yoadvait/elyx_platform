@@ -104,13 +104,18 @@ export default function ElyxDashboard() {
 	});
 
 	const [simulationResults, setSimulationResults] = useState<any>(null);
+	const [xmlInput, setXmlInput] = useState("");
 
 	const runChatSimulation = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (!xmlInput.trim()) return;
+
 		setIsLoading(true);
 		try {
 			const response = await fetch(`${backendBase}/simulation/run`, {
 				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ xml_content: xmlInput }),
 			});
 
 			if (response.ok) {
@@ -725,11 +730,19 @@ export default function ElyxDashboard() {
 									Include episodes, major messages, and test/report data.
 								</p>
 							</div>
-							<div className="text-center">
-								<button onClick={runChatSimulation} className="btn btn-primary btn-lg" disabled={isLoading}>
-									{isLoading ? <div className="loading"></div> : "Run 8-Month Simulation"}
+							<form onSubmit={runChatSimulation}>
+								<div className="form-group">
+									<textarea
+										className="form-input form-textarea h-64"
+										value={xmlInput}
+										onChange={(e) => setXmlInput(e.target.value)}
+										placeholder="Paste the content of episodes.xml here..."
+									/>
+								</div>
+								<button type="submit" className="btn btn-primary" disabled={isLoading}>
+									{isLoading ? <div className="loading"></div> : "Run Simulation"}
 								</button>
-							</div>
+							</form>
 
 							{simulationResults && (
 								<div className="mt-6">

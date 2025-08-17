@@ -4,11 +4,11 @@ from simulation.decision_tree_planner import DecisionTreePlanner
 from simulation.xml_parser import XMLEpisodeParser
 
 class CompleteJourney:
-    def __init__(self, num_months: int = 8):
+    def __init__(self, xml_content: str, num_months: int = 8):
         self.num_weeks = num_months * 4
         self.orchestrator = JourneyOrchestrator()
         self.planner = DecisionTreePlanner()
-        self.parser = XMLEpisodeParser('episodes.xml')
+        self.parser = XMLEpisodeParser(xml_content)
         self.episodes = self.parser.parse_episodes()
 
     def run(self) -> Dict:

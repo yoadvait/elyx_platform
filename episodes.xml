@@ -70,7 +70,7 @@
         <messages>
             <message sender="Rohan" day="1">Home BP readings concerning me. Three measurements this morning: 155/98, 148/94, 152/96. Usually run 125-130/75-85. No obvious triggers - slept well, low stress day.</message>
             <message sender="Rohan" day="1">Whoop data doesn't show acute stress. HRV at 43ms (normal), recovery 72%. But resting heart rate has crept up to 68 bpm over past two weeks vs usual 58-62 bpm.</message>
-            <message sender="Rohan" day="1">Dr. Warren, family history of hypertension on father's side. He was on medication by age 50. Am I heading down same path? CGM patterns normal today - fasting 88, post-meal peaks <130.</message>
+            <message sender="Rohan" day="1">Dr. Warren, family history of hypertension on father's side. He was on medication by age 50. Am I heading down same path? CGM patterns normal today - fasting 88, post-meal peaks &lt;130.</message>
             <message sender="Rohan" day="2">BP still elevated. Morning readings: 149/92, 144/89, 147/93. Feeling slight headache and fatigue. This isn't normal for me.</message>
             <message sender="Rohan" day="2">Correlating with recent data - travel stress from last week, two client dinners with wine, less exercise due to schedule. Could accumulated factors be hitting cardiovascular system?</message>
             <message sender="Rohan" day="2">Advik, can you analyze my HRV trends over past month? Looking for patterns that might predict these BP elevations before they happen.</message>

@@ -2,15 +2,14 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 
 class XMLEpisodeParser:
-    def __init__(self, filepath: str):
-        self.filepath = filepath
+    def __init__(self, xml_content: str):
+        self.xml_content = xml_content
 
     def parse_episodes(self) -> List[Dict[str, Any]]:
         """
-        Parses the episodes.xml file and returns a list of episodes.
+        Parses the XML content and returns a list of episodes.
         """
-        tree = ET.parse(self.filepath)
-        root = tree.getroot()
+        root = ET.fromstring(self.xml_content)
 
         episodes = []
         for episode_elem in root.findall('episode'):
