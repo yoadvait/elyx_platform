@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from data.persistence import PersistenceManager
 from agents.group_chat import GroupChatSystem
