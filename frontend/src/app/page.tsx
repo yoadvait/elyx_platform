@@ -103,22 +103,14 @@ export default function ElyxDashboard() {
 		member_id: 'rohan'
 	});
 
-	// State for the chat simulation input
-	const [chatSimulationInput, setChatSimulationInput] = useState("");
 	const [simulationResults, setSimulationResults] = useState<any>(null);
 
 	const runChatSimulation = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!chatSimulationInput.trim()) return;
-
 		setIsLoading(true);
 		try {
 			const response = await fetch(`${backendBase}/simulation/run`, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					journey_description: chatSimulationInput,
-				}),
 			});
 
 			if (response.ok) {
@@ -733,23 +725,31 @@ export default function ElyxDashboard() {
 									Include episodes, major messages, and test/report data.
 								</p>
 							</div>
-							<form onSubmit={runChatSimulation}>
-								<div className="form-group">
-									<textarea
-										className="form-input form-textarea h-64"
-										value={chatSimulationInput}
-										onChange={(e) => setChatSimulationInput(e.target.value)}
-										placeholder="e.g., Month 1: Rohan starts his journey. He sends messages about feeling tired..."
-									/>
-								</div>
-								<button type="submit" className="btn btn-primary" disabled={isLoading}>
-									{isLoading ? <div className="loading"></div> : "Run Simulation"}
+							<div className="text-center">
+								<button onClick={runChatSimulation} className="btn btn-primary btn-lg" disabled={isLoading}>
+									{isLoading ? <div className="loading"></div> : "Run 8-Month Simulation"}
 								</button>
-							</form>
+							</div>
 
 							{simulationResults && (
 								<div className="mt-6">
 									<h3 className="text-xl font-bold mb-4">Simulation Results</h3>
+
+									{/* Journey Summary */}
+									<div className="mb-6">
+										<h4 className="text-lg font-semibold mb-2">Journey Summary</h4>
+										<div className="timeline">
+											{simulationResults.journey_data.map((report: any, idx: number) => (
+												<div key={idx} className="timeline-item">
+													<div className="timeline-marker"></div>
+													<div className="timeline-content">
+														<span className="timeline-date">Week {report.week}</span>
+														<p>{report.suggested_action || "No specific action suggested."}</p>
+													</div>
+												</div>
+											))}
+										</div>
+									</div>
 
 									{/* Conversation History */}
 									<div className="mb-6">
@@ -771,22 +771,6 @@ export default function ElyxDashboard() {
 										<button onClick={() => exportToCsv(simulationResults.conversation_history, 'conversation_history.csv')} className="btn btn-secondary mt-2">
 											Download Conversation CSV
 										</button>
-									</div>
-
-									{/* Journey Data */}
-									<div>
-										<h4 className="text-lg font-semibold mb-2">Journey Data</h4>
-										<div className="space-y-4">
-											{simulationResults.journey_data.map((report: any, idx: number) => (
-												<div key={idx} className="p-4 border border-gray-200 rounded-lg">
-													<h5 className="font-bold">Week {report.week}</h5>
-													<p>Adherence: {report.adherence_rate}</p>
-													{report.suggested_action && (
-														<p className="text-blue-600">Suggested Action: {report.suggested_action}</p>
-													)}
-												</div>
-											))}
-										</div>
 									</div>
 								</div>
 							)}
