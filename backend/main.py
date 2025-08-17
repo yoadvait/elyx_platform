@@ -175,6 +175,23 @@ class ExperimentMeasurementIn(BaseModel):
     raw_json: Optional[Dict] = None
 
 
+class SimulationRequest(BaseModel):
+    journey_description: str
+
+@app.post("/simulation/run")
+def run_simulation(req: SimulationRequest):
+    from simulation.complete_journey import CompleteJourney
+
+    # A simple way to parse messages from the journey description
+    # This can be made more sophisticated later
+    messages = [line for line in req.journey_description.split('\\n') if line.strip()]
+
+    # Initialize and run the simulation
+    journey = CompleteJourney(messages=messages)
+    results = journey.run()
+
+    return results
+
 @app.get("/health")
 def health():
     return {"status": "ok", "model": os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")}
