@@ -175,19 +175,12 @@ class ExperimentMeasurementIn(BaseModel):
     raw_json: Optional[Dict] = None
 
 
-class SimulationRequest(BaseModel):
-    journey_description: str
-
 @app.post("/simulation/run")
-def run_simulation(req: SimulationRequest):
+def run_simulation():
     from simulation.complete_journey import CompleteJourney
 
-    # A simple way to parse messages from the journey description
-    # This can be made more sophisticated later
-    messages = [line for line in req.journey_description.split('\\n') if line.strip()]
-
     # Initialize and run the simulation
-    journey = CompleteJourney(messages=messages)
+    journey = CompleteJourney()
     results = journey.run()
 
     return results
