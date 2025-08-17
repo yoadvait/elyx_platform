@@ -103,6 +103,35 @@ export default function ElyxDashboard() {
 		member_id: 'rohan'
 	});
 
+	// State for the chat simulation input
+	const [chatSimulationInput, setChatSimulationInput] = useState("");
+	const [simulationResults, setSimulationResults] = useState<any>(null);
+
+	const runChatSimulation = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!chatSimulationInput.trim()) return;
+
+		setIsLoading(true);
+		try {
+			const response = await fetch(`${backendBase}/simulation/run`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					journey_description: chatSimulationInput,
+				}),
+			});
+
+			if (response.ok) {
+				const results = await response.json();
+				setSimulationResults(results);
+			}
+		} catch (error) {
+			console.error("Error running chat simulation:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const backendBase = "http://localhost:8787";
 
@@ -325,6 +354,30 @@ export default function ElyxDashboard() {
 		activeExperiments: experiments.filter(e => e.status === 'running').length,
     };
 
+	const exportToCsv = (data: any[], filename: string) => {
+		const csvRows = [];
+		const headers = Object.keys(data[0]);
+		csvRows.push(headers.join(','));
+
+		for (const row of data) {
+			const values = headers.map(header => {
+				const escaped = ('' + row[header]).replace(/"/g, '\\"');
+				return `"${escaped}"`;
+			});
+			csvRows.push(values.join(','));
+		}
+
+		const blob = new Blob([csvRows.join('\\n')], { type: 'text/csv' });
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.setAttribute('hidden', '');
+		a.setAttribute('href', url);
+		a.setAttribute('download', filename);
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	};
+
 	return (
 		<div className="app-container">
 			{/* Header */}
@@ -357,7 +410,7 @@ export default function ElyxDashboard() {
 						className={`nav-tab ${activeTab === "data" ? "active" : ""}`}
 						onClick={() => setActiveTab("data")}
 					>
-						🗄️ Data Management
+						 simulating Chat
 					</button>
 					<button
 						className={`nav-tab ${activeTab === "analytics" ? "active" : ""}`}
@@ -668,195 +721,77 @@ export default function ElyxDashboard() {
 						</div>
 				)}
 
-				{/* Data Management Tab */}
+				{/* Chat Simulation Tab */}
 				{activeTab === "data" && (
 					<div>
-						<div className="flex items-center justify-between mb-6">
-							<h2 className="text-2xl font-bold">Data Management</h2>
-							<div className="flex gap-2">
-								<button onClick={generateMockData} className="btn btn-secondary">
-									🎲 Generate Mock Data
-								</button>
-								<button
-									onClick={async () => {
-										await fetch(`${backendBase}/reset-soft`, { method: 'POST' });
-										await refreshAll();
-									}}
-									className="btn"
-								>
-									🧹 Reset (keep user)
-								</button>
+						<h2 className="text-2xl font-bold mb-6">Chat Simulation</h2>
+						<div className="card">
+							<div className="card-header">
+								<h3 className="card-title">Journey Description</h3>
+								<p className="card-subtitle">
+									Enter the month-wise journey description for Rohan Patel.
+									Include episodes, major messages, and test/report data.
+								</p>
 							</div>
+							<form onSubmit={runChatSimulation}>
+								<div className="form-group">
+									<textarea
+										className="form-input form-textarea h-64"
+										value={chatSimulationInput}
+										onChange={(e) => setChatSimulationInput(e.target.value)}
+										placeholder="e.g., Month 1: Rohan starts his journey. He sends messages about feeling tired..."
+									/>
+								</div>
+								<button type="submit" className="btn btn-primary" disabled={isLoading}>
+									{isLoading ? <div className="loading"></div> : "Run Simulation"}
+								</button>
+							</form>
+
+							{simulationResults && (
+								<div className="mt-6">
+									<h3 className="text-xl font-bold mb-4">Simulation Results</h3>
+
+									{/* Conversation History */}
+									<div className="mb-6">
+										<h4 className="text-lg font-semibold mb-2">Conversation History</h4>
+										<div className="chat-container">
+											<div className="chat-messages">
+												{simulationResults.conversation_history.map((msg: Message, idx: number) => (
+													<div key={idx} className={`message ${msg.sender === 'Rohan' ? 'user' : 'agent'}`}>
+														<div className="message-header">
+															{msg.sender}
+														</div>
+														<div className="message-content">
+															{msg.message}
+														</div>
+													</div>
+												))}
+											</div>
+										</div>
+										<button onClick={() => exportToCsv(simulationResults.conversation_history, 'conversation_history.csv')} className="btn btn-secondary mt-2">
+											Download Conversation CSV
+										</button>
+									</div>
+
+									{/* Journey Data */}
+									<div>
+										<h4 className="text-lg font-semibold mb-2">Journey Data</h4>
+										<div className="space-y-4">
+											{simulationResults.journey_data.map((report: any, idx: number) => (
+												<div key={idx} className="p-4 border border-gray-200 rounded-lg">
+													<h5 className="font-bold">Week {report.week}</h5>
+													<p>Adherence: {report.adherence_rate}</p>
+													{report.suggested_action && (
+														<p className="text-blue-600">Suggested Action: {report.suggested_action}</p>
+													)}
+												</div>
+											))}
+										</div>
+									</div>
+								</div>
+							)}
 						</div>
-
-						<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-							{/* Add Episode */}
-							<div className="card">
-								<div className="card-header">
-									<h3 className="card-title">Add New Episode</h3>
-									<button
-										onClick={() => setShowEpisodeForm(!showEpisodeForm)}
-										className="btn btn-primary btn-sm"
-									>
-										{showEpisodeForm ? 'Cancel' : '+ Add Episode'}
-									</button>
-								</div>
-								{showEpisodeForm && (
-									<form onSubmit={addEpisode} className="space-y-4">
-										<div className="form-group">
-											<label className="form-label">Title</label>
-											<input
-												type="text"
-												className="form-input"
-												value={episodeForm.title}
-												onChange={(e) => setEpisodeForm({...episodeForm, title: e.target.value})}
-												required
-											/>
-										</div>
-										<div className="form-group">
-											<label className="form-label">Trigger Type</label>
-											<select
-												className="form-input form-select"
-												value={episodeForm.trigger_type}
-												onChange={(e) => setEpisodeForm({...episodeForm, trigger_type: e.target.value})}
-											>
-												<option value="user_message">User Message</option>
-												<option value="health_alert">Health Alert</option>
-												<option value="scheduled_check">Scheduled Check</option>
-												<option value="external_data">External Data</option>
-											</select>
-										</div>
-										<div className="form-group">
-											<label className="form-label">Description</label>
-											<textarea
-												className="form-input form-textarea"
-												value={episodeForm.trigger_description}
-												onChange={(e) => setEpisodeForm({...episodeForm, trigger_description: e.target.value})}
-												required
-											/>
-										</div>
-										<div className="form-group">
-											<label className="form-label">Priority (1-5)</label>
-											<select
-												className="form-input form-select"
-												value={episodeForm.priority}
-												onChange={(e) => setEpisodeForm({...episodeForm, priority: parseInt(e.target.value)})}
-											>
-												<option value={1}>1 - Low</option>
-												<option value={2}>2 - Normal</option>
-												<option value={3}>3 - Medium</option>
-												<option value={4}>4 - High</option>
-												<option value={5}>5 - Critical</option>
-											</select>
-										</div>
-										<div className="form-group">
-											<label className="form-label">Member State Before</label>
-											<textarea
-												className="form-input form-textarea"
-												value={episodeForm.member_state_before}
-												onChange={(e) => setEpisodeForm({...episodeForm, member_state_before: e.target.value})}
-												placeholder="Describe the member's state before this episode..."
-											/>
-										</div>
-										<button type="submit" className="btn btn-primary">
-											Create Episode
-										</button>
-									</form>
-								)}
-							</div>
-
-							{/* Add Experiment */}
-							<div className="card">
-								<div className="card-header">
-									<h3 className="card-title">Add New Experiment</h3>
-									<button
-										onClick={() => setShowExperimentForm(!showExperimentForm)}
-										className="btn btn-primary btn-sm"
-									>
-										{showExperimentForm ? 'Cancel' : '+ Add Experiment'}
-						</button>
 					</div>
-								{showExperimentForm && (
-									<form onSubmit={addExperiment} className="space-y-4">
-										<div className="form-group">
-											<label className="form-label">Hypothesis</label>
-											<textarea
-												className="form-input form-textarea"
-												value={experimentForm.hypothesis}
-												onChange={(e) => setExperimentForm({...experimentForm, hypothesis: e.target.value})}
-												placeholder="What do you want to test?"
-												required
-											/>
-										</div>
-										<div className="form-group">
-											<label className="form-label">Template</label>
-											<select
-												className="form-input form-select"
-												value={experimentForm.template}
-												onChange={(e) => setExperimentForm({...experimentForm, template: e.target.value})}
-											>
-												<option value="">Custom Experiment</option>
-												<option value="SLEEP_OPTIMIZATION">Sleep Optimization</option>
-												<option value="NUTRITION_INTERVENTION">Nutrition Intervention</option>
-												<option value="SUPPLEMENT_TRIAL">Supplement Trial</option>
-												<option value="EXERCISE_PROTOCOL">Exercise Protocol</option>
-												<option value="CGM_MEAL_TEST">CGM Meal Test</option>
-											</select>
-										</div>
-										<div className="form-group">
-											<label className="form-label">Member ID</label>
-											<input
-												type="text"
-												className="form-input"
-												value={experimentForm.member_id}
-												onChange={(e) => setExperimentForm({...experimentForm, member_id: e.target.value})}
-												required
-											/>
-										</div>
-										<button type="submit" className="btn btn-primary">
-											Create Experiment
-										</button>
-									</form>
-								)}
-				</div>
-
-							{/* Data Overview */}
-							<div className="card lg:col-span-2">
-								<div className="card-header">
-									<h3 className="card-title">Data Overview</h3>
-									<button onClick={refreshAll} className="btn btn-sm">
-										🔄 Refresh
-						</button>
-					</div>
-								<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-									<div className="text-center p-4 bg-blue-50 rounded-lg">
-										<div className="text-2xl font-bold text-blue-600">{messages.length}</div>
-										<div className="text-sm text-gray-600">Messages</div>
-									</div>
-									<div className="text-center p-4 bg-green-50 rounded-lg">
-										<div className="text-2xl font-bold text-green-600">{suggestions.length}</div>
-										<div className="text-sm text-gray-600">Suggestions</div>
-									</div>
-									<div className="text-center p-4 bg-yellow-50 rounded-lg">
-										<div className="text-2xl font-bold text-yellow-600">{issues.length}</div>
-										<div className="text-sm text-gray-600">Issues</div>
-									</div>
-									<div className="text-center p-4 bg-purple-50 rounded-lg">
-										<div className="text-2xl font-bold text-purple-600">{episodes.length}</div>
-										<div className="text-sm text-gray-600">Episodes</div>
-									</div>
-									<div className="text-center p-4 bg-red-50 rounded-lg">
-										<div className="text-2xl font-bold text-red-600">{decisions.length}</div>
-										<div className="text-sm text-gray-600">Decisions</div>
-									</div>
-									<div className="text-center p-4 bg-indigo-50 rounded-lg">
-										<div className="text-2xl font-bold text-indigo-600">{experiments.length}</div>
-										<div className="text-sm text-gray-600">Experiments</div>
-									</div>
-								</div>
-				</div>
-				</div>
-				</div>
 				)}
 
 				{/* Analytics Tab */}

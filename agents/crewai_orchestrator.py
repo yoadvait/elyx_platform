@@ -3,10 +3,12 @@ from typing import Dict, Optional
 
 try:
     from crewai import Agent, Task, Crew
+    from langchain_openai import ChatOpenAI
 except Exception:  # noqa: BLE001
     Agent = None  # type: ignore[assignment]
     Task = None  # type: ignore[assignment]
     Crew = None  # type: ignore[assignment]
+    ChatOpenAI = None  # type: ignore[assignment]
 
 
 ROLE_TO_PROMPT: Dict[str, str] = {
@@ -47,9 +49,15 @@ class CrewOrchestrator:
     """
 
     def __init__(self):
+        if ChatOpenAI is None:
+            raise RuntimeError("langchain_openai not installed or failed to import")
         # CrewAI/LiteLLM use OpenAI-compatible config; we set base to OpenRouter via env
         # Model stays as configured (e.g., "openai/gpt-oss-20b:free")
-        self.model = os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-20b:free")
+        self.llm = ChatOpenAI(
+            model=os.getenv("OPENROUTER_MODEL", "openai/gpt-3.5-turbo"),
+            api_key=os.getenv("OPENAI_API_KEY"),
+            base_url=os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1"),
+        )
         self._agents: Dict[str, object] = {}
 
     def _get_or_create_agent(self, name: str):
@@ -64,7 +72,7 @@ class CrewOrchestrator:
             backstory=system_prompt,
             allow_delegation=False,
             verbose=False,
-            llm=self.model,
+            llm=self.llm,
         )
         self._agents[name] = agent
         return agent
