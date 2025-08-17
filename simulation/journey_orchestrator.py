@@ -11,11 +11,15 @@ class JourneyOrchestrator:
         self.chat_system = GroupChatSystem()
         self.current_state = self.persistence.load_journey_state()
 
-    def simulate_week(self, week: int) -> Dict:
+    def simulate_week(self, week: int, user_message: Optional[str] = None) -> Dict:
         print(f"=== Simulating Week {week} ===")
 
         events = self.generate_weekly_events(week)
-        user_messages = self.generate_user_messages(week, events)
+
+        if user_message:
+            user_messages = [user_message]
+        else:
+            user_messages = self.generate_user_messages(week, events)
 
         weekly_conversations: List[Dict] = []
         for message in user_messages:
