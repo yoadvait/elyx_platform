@@ -1,8 +1,8 @@
 {
   "week": 19,
   "events": [],
-  "conversations_count": 20,
-  "adherence_rate": 0.5,
+  "conversations_count": 2,
+  "adherence_rate": 0.8,
   "health_metrics": {
     "blood_sugar_avg": 144,
     "a1c": 5.82,
@@ -10,7 +10,7 @@
   },
   "agent_actions": {
     "doctor_hours": 11,
-    "coach_hours": 13
+    "coach_hours": 12
   },
   "recommendations": []
 }

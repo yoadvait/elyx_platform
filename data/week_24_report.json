@@ -3,7 +3,7 @@
   "events": [
     "quarterly_diagnostic_test"
   ],
-  "conversations_count": 15,
+  "conversations_count": 2,
   "adherence_rate": 0.3,
   "health_metrics": {
     "blood_sugar_avg": 134,
@@ -11,8 +11,8 @@
     "weight": 72.6
   },
   "agent_actions": {
-    "doctor_hours": 13,
-    "coach_hours": 11
+    "doctor_hours": 14,
+    "coach_hours": 20
   },
   "recommendations": []
 }

@@ -3,16 +3,16 @@
   "events": [
     "exercise_plan_update"
   ],
-  "conversations_count": 20,
-  "adherence_rate": 0.3,
+  "conversations_count": 2,
+  "adherence_rate": 0.8,
   "health_metrics": {
     "blood_sugar_avg": 122,
     "a1c": 5.6000000000000005,
     "weight": 72.0
   },
   "agent_actions": {
-    "doctor_hours": 10,
-    "coach_hours": 20
+    "doctor_hours": 13,
+    "coach_hours": 11
   },
   "recommendations": []
 }
