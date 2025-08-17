@@ -29,6 +29,7 @@ class CompleteJourney:
             weekly_report = self.orchestrator.simulate_week(week, user_message)
 
             # Use the planner to get the next action
+
             next_action = self.planner.get_next_action(weekly_report)
             if next_action:
                 weekly_report["suggested_action"] = next_action
