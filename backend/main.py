@@ -175,12 +175,15 @@ class ExperimentMeasurementIn(BaseModel):
     raw_json: Optional[Dict] = None
 
 
+class SimulationRequest(BaseModel):
+    xml_content: str
+
 @app.post("/simulation/run")
-def run_simulation():
+def run_simulation(req: SimulationRequest):
     from simulation.complete_journey import CompleteJourney
 
     # Initialize and run the simulation
-    journey = CompleteJourney()
+    journey = CompleteJourney(xml_content=req.xml_content)
     results = journey.run()
 
     return results
