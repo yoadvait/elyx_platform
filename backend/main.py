@@ -1,9 +1,11 @@
 import os
+import warnings
 from typing import Dict, Optional, List
 
 from fastapi import FastAPI
 import logging
 from fastapi.middleware.cors import CORSMiddleware
+warnings.filterwarnings("ignore", message="Overriding of current TracerProvider is not allowed")
 from pydantic import BaseModel
 
 from agents.elyx_agents import AgentOrchestrator, UrgencyDetector, AGENT_ROLES

@@ -352,13 +352,13 @@ export default function ElyxDashboard() {
     };
 
 	const exportToCsv = (data: any[], filename: string) => {
-		const csvRows = [];
-		const headers = Object.keys(data[0]);
-		csvRows.push(headers.join(','));
+		const headers = ['content', 'date', 'time', 'sender'];
+		const csvRows = [headers.join(',')];
 
 		for (const row of data) {
 			const values = headers.map(header => {
-				const escaped = ('' + row[header]).replace(/"/g, '\\"');
+				const value = header === 'content' ? row['message'] : row[header];
+				const escaped = ('' + value).replace(/"/g, '\\"');
 				return `"${escaped}"`;
 			});
 			csvRows.push(values.join(','));
@@ -751,16 +751,15 @@ export default function ElyxDashboard() {
 									{/* Journey Summary */}
 									<div className="mb-6">
 										<h4 className="text-lg font-semibold mb-2">Journey Summary</h4>
-										<div className="timeline">
-											{simulationResults.journey_data.map((report: any, idx: number) => (
-												<div key={idx} className="timeline-item">
-													<div className="timeline-marker"></div>
-													<div className="timeline-content">
-														<span className="timeline-date">Week {report.week}</span>
-														<p>{report.suggested_action || "No specific action suggested."}</p>
-													</div>
-												</div>
-											))}
+										<div className="card">
+											<h5 className="font-bold text-lg mb-2">Key Milestones</h5>
+											<ul className="list-disc pl-5 space-y-2">
+												{simulationResults.journey_summary.key_milestones.map((milestone: string, idx: number) => (
+													<li key={idx}>{milestone}</li>
+												))}
+											</ul>
+											<h5 className="font-bold text-lg mt-4 mb-2">Overall Progress</h5>
+											<p>{simulationResults.journey_summary.overall_progress}</p>
 										</div>
 									</div>
 
