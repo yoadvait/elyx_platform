@@ -5,6 +5,7 @@
   ],
   "conversations_count": 2,
   "adherence_rate": 0.3,
+  "agent_response": "Ruby: Thank you for committing to these changes! I’ve logged your plan and set a weekly reminder to review progress each Friday at 3 PM. If you’d like, I can add a quick progress tracker to your calendar or create a shared sheet so you can log updates and receive prompts. Let me know if you’d prefer a different reminder time or if there’s anything else I can set up to keep the momentum going. You’ve got this—just let me know how I can help next!",
   "health_metrics": {
     "blood_sugar_avg": 120,
     "a1c": 5.5600000000000005,
@@ -14,5 +15,7 @@
     "doctor_hours": 12,
     "coach_hours": 19
   },
-  "recommendations": []
+  "recommendations": [
+    "Ruby: Thank you for committing to these changes! I’ve logged your plan and set a weekly reminder to review progress each Friday at 3 PM. If you’d like, I can add a quick progress tracker to your calendar or..."
+  ]
 }

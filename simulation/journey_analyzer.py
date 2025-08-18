@@ -1,9 +1,22 @@
 from typing import List, Dict, Any
-from agents.crewai_orchestrator import CrewOrchestrator
+
+try:
+    from agents.crewai_orchestrator import CrewOrchestrator
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+    CrewOrchestrator = None
 
 class JourneyAnalyzer:
     def __init__(self):
-        self.orchestrator = CrewOrchestrator()
+        if AI_AVAILABLE:
+            try:
+                self.orchestrator = CrewOrchestrator()
+            except Exception as e:
+                print(f"Warning: AI orchestrator initialization failed: {e}")
+                self.orchestrator = None
+        else:
+            self.orchestrator = None
 
     def analyze(self, conversation_history: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

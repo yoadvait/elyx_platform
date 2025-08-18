@@ -78,6 +78,13 @@ class CrewOrchestrator:
         return agent
 
     def ask(self, agent_name: str, message: str, context: Optional[Dict] = None) -> str:
+        """
+        Ask the named agent for a response via CrewAI.
+
+        Improvements:
+        - Retries with exponential backoff on transient failures (e.g., provider 503).
+        - Logs warnings/errors and returns a graceful fallback string if the provider is unavailable.
+        """
         if Task is None or Crew is None:
             raise RuntimeError("crewai not installed or failed to import")
         agent = self._get_or_create_agent(agent_name)
@@ -87,8 +94,34 @@ class CrewOrchestrator:
             agent=agent,
             expected_output="A precise, helpful, role-aligned response to the member. Keep it under 150 words.",
         )
+
         crew = Crew(agents=[agent], tasks=[task])
-        result = crew.kickoff()
-        return str(result)
 
+        import time
+        import logging
 
+        max_attempts = 3
+        delay = 1.0
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                result = crew.kickoff()
+                return str(result)
+            except Exception as exc:  # noqa: BLE001
+                msg = str(exc)
+                logging.warning("Crew kickoff attempt %d/%d failed: %s", attempt, max_attempts, msg)
+                # Detect common transient/provider HTML responses or 5xx
+                transient = False
+                if "503" in msg or "Service Temporarily Unavailable" in msg or "<html" in msg:
+                    transient = True
+
+                if attempt < max_attempts and transient:
+                    time.sleep(delay)
+                    delay *= 2
+                    continue
+
+                logging.error("Crew kickoff failed permanently: %s", msg)
+                # Graceful fallback: return a role-aligned short fallback message
+                fallback = ROLE_TO_PROMPT.get(agent_name, f"You are {agent_name}, an Elyx agent. We're experiencing temporary service issues; please try again later.")
+                # Keep fallback short
+                return f"{agent_name}: {fallback}"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 type Message = {
 	sender: string;
@@ -147,7 +147,8 @@ export default function ElyxDashboard() {
 	// Load all data
 	const refreshAll = async () => {
 		try {
-			const [suggestionsRes, issuesRes, episodesRes, decisionsRes, experimentsRes] = await Promise.all([
+			const [messagesRes, suggestionsRes, issuesRes, episodesRes, decisionsRes, experimentsRes] = await Promise.all([
+				fetch(`${backendBase}/messages`),
 				fetch(`${backendBase}/suggestions`),
 				fetch(`${backendBase}/issues`),
 				fetch(`${backendBase}/episodes`),
@@ -157,7 +158,9 @@ export default function ElyxDashboard() {
 
 			if (messagesRes.ok) {
 				const data = await messagesRes.json();
-				setMessages(data as Message[]);
+				// Extract messages array from the response object
+				const messagesArray = data.messages || data || [];
+				setMessages(messagesArray as Message[]);
 			}
 			if (suggestionsRes.ok) {
 				const data = await suggestionsRes.json();
@@ -181,6 +184,8 @@ export default function ElyxDashboard() {
 			}
 		} catch (error) {
 			console.error('Error loading data:', error);
+			// Ensure messages is always an array even on error
+			setMessages([]);
 		}
 	};
 
@@ -210,7 +215,9 @@ export default function ElyxDashboard() {
 
 			if (response.ok) {
 				const newMessages = await response.json();
-				setMessages(newMessages as Message[]);
+				// Extract messages array from the response object
+				const messagesArray = newMessages.messages || newMessages || [];
+				setMessages(messagesArray as Message[]);
 				// Refresh suggestions and issues after chat
 				setTimeout(refreshAll, 500);
 			}
@@ -345,12 +352,12 @@ export default function ElyxDashboard() {
 
 		// Stats
 	const stats = {
-		totalMessages: messages.length,
-		pendingSuggestions: pendingSuggestions.length,
-		activeTasks: planItems.in_progress.length,
-		completedTasks: planItems.completed.length,
-		openIssues: issues.filter(i => i.status !== 'resolved').length,
-		activeExperiments: experiments.filter(e => e.status === 'running').length,
+		totalMessages: Array.isArray(messages) ? messages.length : 0,
+		pendingSuggestions: Array.isArray(pendingSuggestions) ? pendingSuggestions.length : 0,
+		activeTasks: Array.isArray(planItems.in_progress) ? planItems.in_progress.length : 0,
+		completedTasks: Array.isArray(planItems.completed) ? planItems.completed.length : 0,
+		openIssues: Array.isArray(issues) ? issues.filter(i => i.status !== 'resolved').length : 0,
+		activeExperiments: Array.isArray(experiments) ? experiments.filter(e => e.status === 'running').length : 0,
     };
 
 	const exportToCsv = (data: any[], filename: string) => {
@@ -431,7 +438,23 @@ export default function ElyxDashboard() {
 								</div>
 								<div className="chat-container">
 									<div className="chat-messages">
-										{messages.map((msg, idx) => (
+										{!Array.isArray(messages) && (
+											<div className="message agent">
+												<div className="message-header">System</div>
+												<div className="message-content">
+													<div className="loading"></div> Loading messages...
+												</div>
+											</div>
+										)}
+										{Array.isArray(messages) && messages.length === 0 && (
+											<div className="message agent">
+												<div className="message-header">AI Team</div>
+												<div className="message-content">
+													No messages yet. Start a conversation!
+												</div>
+											</div>
+										)}
+										{Array.isArray(messages) && messages.map((msg, idx) => (
 											<div key={idx} className={`message ${msg.sender === 'Rohan' ? 'user' : 'agent'}`}>
 												<div className="message-header">
 													{msg.sender} {msg.timestamp && `• ${new Date(msg.timestamp).toLocaleTimeString()}`}
@@ -502,14 +525,14 @@ export default function ElyxDashboard() {
 									<p className="card-subtitle">Review and accept/reject AI recommendations</p>
 								</div>
 								<div className="space-y-3 max-h-96 overflow-y-auto">
-									{pendingSuggestions.map((suggestion) => (
+									{Array.isArray(pendingSuggestions) && pendingSuggestions.map((suggestion) => (
 										<div key={suggestion.id} className="p-4 border border-gray-200 rounded-lg">
 											<div className="flex items-start justify-between mb-2">
 												<h4 className="text-sm font-medium">{suggestion.title}</h4>
 												<span className="text-xs text-gray-500">{suggestion.agent}</span>
 											</div>
 											<p className="text-xs text-gray-600 mb-3">{suggestion.details}</p>
-											<div className="flex items-center justify-between">
+											<div className="flex items-start justify-between">
 												<span className="text-xs text-gray-500">{suggestion.category}</span>
 							<div className="flex gap-2">
 													<button
@@ -528,7 +551,7 @@ export default function ElyxDashboard() {
 											</div>
 										</div>
 									))}
-									{pendingSuggestions.length === 0 && (
+									{(!Array.isArray(pendingSuggestions) || pendingSuggestions.length === 0) && (
 										<p className="text-sm text-gray-500 text-center py-8">No new suggestions. Start chatting to get personalized recommendations!</p>
 									)}
 								</div>
@@ -547,7 +570,7 @@ export default function ElyxDashboard() {
 								<div className="stat-label">New Suggestions</div>
 							</div>
 							<div className="stat-card">
-								<div className="stat-value text-blue-500">{planItems.todo.length}</div>
+								<div className="stat-value text-blue-500">{Array.isArray(planItems.todo) ? planItems.todo.length : 0}</div>
 								<div className="stat-label">To-Do Tasks</div>
 							</div>
 							<div className="stat-card">
@@ -572,15 +595,15 @@ export default function ElyxDashboard() {
 												className={`btn btn-sm ${planFilter === status ? 'btn-primary' : ''}`}
 												onClick={() => setPlanFilter(status)}
 											>
-												{status === 'todo' ? `To-Do (${planItems.todo.length})` : 
-												 status === 'in_progress' ? `In Progress (${planItems.in_progress.length})` :
-												 `Completed (${planItems.completed.length})`}
+												{status === 'todo' ? `To-Do (${Array.isArray(planItems.todo) ? planItems.todo.length : 0})` : 
+												 status === 'in_progress' ? `In Progress (${Array.isArray(planItems.in_progress) ? planItems.in_progress.length : 0})` :
+												 `Completed (${Array.isArray(planItems.completed) ? planItems.completed.length : 0})`}
 											</button>
 										))}
 									</div>
 								</div>
 								<div className="space-y-3 max-h-96 overflow-y-auto">
-									{planItems[planFilter].map((item) => (
+									{Array.isArray(planItems[planFilter]) && planItems[planFilter].map((item) => (
 										<div key={item.id} className="p-4 border border-gray-200 rounded-lg">
 											<div className="flex items-start justify-between mb-2">
 												<h4 className="font-medium">{item.title}</h4>
@@ -613,7 +636,7 @@ export default function ElyxDashboard() {
 											</div>
 										</div>
 									))}
-									{planItems[planFilter].length === 0 && (
+									{(!Array.isArray(planItems[planFilter]) || planItems[planFilter].length === 0) && (
 										<div className="text-center py-8">
 											<p className="text-sm text-gray-500 mb-2">
 												{planFilter === 'todo' ? 'No tasks to do' :
@@ -634,7 +657,7 @@ export default function ElyxDashboard() {
 									<h3 className="card-title">Issues & Concerns</h3>
 								</div>
 								<div className="space-y-3 max-h-96 overflow-y-auto">
-									{issues.filter(i => (i.status || 'open') !== 'resolved').map((issue) => (
+									{Array.isArray(issues) && issues.filter(i => (i.status || 'open') !== 'resolved').map((issue) => (
 										<div key={issue.id} className="p-4 border border-gray-200 rounded-lg">
 											<div className="flex items-start justify-between mb-2">
 												<h4 className="font-medium">{issue.title}</h4>
@@ -654,7 +677,7 @@ export default function ElyxDashboard() {
 											<div className="text-xs text-gray-500">{issue.category}</div>
 										</div>
 									))}
-									{issues.length === 0 && (
+									{(!Array.isArray(issues) || issues.length === 0) && (
 										<p className="text-sm text-gray-500 text-center py-8">No issues reported.</p>
 									)}
 								</div>
@@ -666,7 +689,7 @@ export default function ElyxDashboard() {
 									<h3 className="card-title">Episodes</h3>
 								</div>
 								<div className="space-y-3 max-h-96 overflow-y-auto">
-									{episodes.map((episode) => (
+									{Array.isArray(episodes) && episodes.map((episode) => (
 										<div key={episode.id} className="p-4 border border-gray-200 rounded-lg">
 											<div className="flex items-start justify-between mb-2">
 												<h4 className="font-medium">{episode.title}</h4>
@@ -695,7 +718,7 @@ export default function ElyxDashboard() {
 									<h3 className="card-title">Experiments</h3>
 								</div>
 								<div className="space-y-3 max-h-96 overflow-y-auto">
-									{experiments.map((experiment) => (
+									{Array.isArray(experiments) && experiments.map((experiment) => (
 										<div key={experiment.id} className="p-4 border border-gray-200 rounded-lg">
 											<div className="flex items-start justify-between mb-2">
 												<h4 className="font-medium text-sm">{experiment.hypothesis}</h4>
@@ -711,7 +734,7 @@ export default function ElyxDashboard() {
 											)}
 										</div>
 									))}
-									{experiments.length === 0 && (
+									{(!Array.isArray(experiments) || experiments.length === 0) && (
 										<p className="text-sm text-gray-500 text-center py-8">No experiments running.</p>
 									)}
 								</div>
@@ -757,7 +780,7 @@ export default function ElyxDashboard() {
 											<div className="card-body">
 												<h5 className="card-title text-primary">Key Milestones</h5>
 												<ul className="list-disc pl-5 space-y-2 mb-4">
-													{simulationResults.journey_summary.key_milestones.map((milestone: string, idx: number) => (
+													{Array.isArray(simulationResults.journey_summary?.key_milestones) && simulationResults.journey_summary.key_milestones.map((milestone: string, idx: number) => (
 														<li key={idx} className="text-gray-700">{milestone}</li>
 													))}
 												</ul>
@@ -772,7 +795,7 @@ export default function ElyxDashboard() {
 										<h4 className="text-lg font-semibold mb-2">Conversation History</h4>
 										<div className="chat-container">
 											<div className="chat-messages">
-												{simulationResults.conversation_history.map((msg: Message, idx: number) => (
+												{Array.isArray(simulationResults.conversation_history) && simulationResults.conversation_history.map((msg: Message, idx: number) => (
 													<div key={idx} className={`message ${msg.sender === 'Rohan' ? 'user' : 'agent'}`}>
 														<div className="message-header">
 															{msg.sender}
