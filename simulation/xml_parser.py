@@ -9,7 +9,11 @@ class XMLEpisodeParser:
         """
         Parses the XML content and returns a list of episodes.
         """
-        root = ET.fromstring(self.xml_content)
+        try:
+            root = ET.fromstring(self.xml_content)
+        except ET.ParseError as e:
+            print(f"Error parsing XML: {e}")
+            return []
 
         episodes = []
         for episode_elem in root.findall('episode'):

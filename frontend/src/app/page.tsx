@@ -108,7 +108,10 @@ export default function ElyxDashboard() {
 
 	const runChatSimulation = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!xmlInput.trim()) return;
+		if (!xmlInput.trim()) {
+			alert("Please paste the XML content before running the simulation.");
+			return;
+		}
 
 		setIsLoading(true);
 		try {
@@ -144,8 +147,7 @@ export default function ElyxDashboard() {
 	// Load all data
 	const refreshAll = async () => {
 		try {
-			const [messagesRes, suggestionsRes, issuesRes, episodesRes, decisionsRes, experimentsRes] = await Promise.all([
-				fetch(`${backendBase}/messages`),
+			const [suggestionsRes, issuesRes, episodesRes, decisionsRes, experimentsRes] = await Promise.all([
 				fetch(`${backendBase}/suggestions`),
 				fetch(`${backendBase}/issues`),
 				fetch(`${backendBase}/episodes`),
@@ -751,15 +753,17 @@ export default function ElyxDashboard() {
 									{/* Journey Summary */}
 									<div className="mb-6">
 										<h4 className="text-lg font-semibold mb-2">Journey Summary</h4>
-										<div className="card">
-											<h5 className="font-bold text-lg mb-2">Key Milestones</h5>
-											<ul className="list-disc pl-5 space-y-2">
-												{simulationResults.journey_summary.key_milestones.map((milestone: string, idx: number) => (
-													<li key={idx}>{milestone}</li>
-												))}
-											</ul>
-											<h5 className="font-bold text-lg mt-4 mb-2">Overall Progress</h5>
-											<p>{simulationResults.journey_summary.overall_progress}</p>
+										<div className="card bg-gray-50">
+											<div className="card-body">
+												<h5 className="card-title text-primary">Key Milestones</h5>
+												<ul className="list-disc pl-5 space-y-2 mb-4">
+													{simulationResults.journey_summary.key_milestones.map((milestone: string, idx: number) => (
+														<li key={idx} className="text-gray-700">{milestone}</li>
+													))}
+												</ul>
+												<h5 className="card-title text-primary">Overall Progress</h5>
+												<p className="text-gray-700">{simulationResults.journey_summary.overall_progress}</p>
+											</div>
 										</div>
 									</div>
 

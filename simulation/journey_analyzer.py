@@ -1,12 +1,17 @@
 from typing import List, Dict, Any
+from agents.crewai_orchestrator import CrewOrchestrator
 
 class JourneyAnalyzer:
+    def __init__(self):
+        self.orchestrator = CrewOrchestrator()
+
     def analyze(self, conversation_history: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Analyzes the conversation history and returns a structured journey summary.
-        This is a mock implementation.
         """
 
+        # For now, we'll continue to use a mock to avoid making a real LLM call
+        # In a real implementation, we would use the orchestrator to call an LLM
         summary = {
             "total_episodes": 8,
             "key_milestones": [

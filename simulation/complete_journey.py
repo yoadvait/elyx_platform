@@ -55,6 +55,11 @@ class CompleteJourney:
 
             weekly_report = self.orchestrator.simulate_week(day // 7 + 1, user_message)
 
+            # Simulate a follow-up from Rohan
+            rohan_follow_up = "Thanks!"
+            print(f"--- Rohan says: '{rohan_follow_up}' ---")
+            self.orchestrator.simulate_week(day // 7 + 1, rohan_follow_up)
+
             # Add timestamp to conversation history
             for conv in self.orchestrator.chat_system.conversation_history:
                 if 'date' not in conv:
